@@ -32,3 +32,28 @@ function bitly_shortlink($url, $id, $context, $allow_slugs){
   return false;
 }
 add_filter( 'pre_get_shortlink', 'bitly_shortlink', 99, 4 );
+
+
+
+/* Shortcode filter */
+function shortcode_content( $content ) {
+
+    /* Parse nested shortcodes and add formatting. */
+    $content = trim( wpautop( do_shortcode( $content ) ) );
+
+    /* Remove '</p>' from the start of the string. */
+    if ( substr( $content, 0, 4 ) == '</p>' )
+        $content = substr( $content, 4 );
+
+    /* Remove '<p>' from the end of the string. */
+    if ( substr( $content, -3, 3 ) == '<p>' )
+        $content = substr( $content, 0, -3 );
+
+    /* Remove any instances of '<p></p>'. */
+    $content = str_replace( array( '<p></p>' ), '', $content );
+
+    $content = str_replace( '<br />', '', $content );
+    $content = str_replace( '&lt;br /&gt;', '', $content );
+
+    return $content;
+}

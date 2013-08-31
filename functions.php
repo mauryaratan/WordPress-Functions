@@ -57,3 +57,16 @@ function shortcode_content( $content ) {
 
     return $content;
 }
+
+/* Check Remote URL content */
+function get_remote_part( $url, $minutes_to_save = 60 ) {
+	$transient_name = 'get_remote_part_' . substr( md5( $url ), 16 );
+	if ( false === ( $value = get_transient( $transient_name ) ) ) {
+		$value = wp_remote_retrieve_body( wp_remote_get( $url ) );
+		if( $value ) {
+			set_transient( $transient_name, $value, ( MINUTE_IN_SECONDS * $minutes_to_save ) );
+		}
+	}
+	return $value;
+}
+

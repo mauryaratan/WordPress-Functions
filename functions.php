@@ -70,3 +70,29 @@ function get_remote_part( $url, $minutes_to_save = 60 ) {
 	return $value;
 }
 
+
+/**
+ * Fragment Caching
+ *
+ * @description 
+ * @param string $key Fragment Identifier
+ * @param integer $ttl Time in seconds
+ * @param function $function Callback function
+ * @return Cached data
+ * @package StagFramework
+ */
+function stag_fragment_cache( $key, $ttl, $function ) {
+	if ( is_user_logged_in() ) {
+		call_user_func($function);
+		return;
+	}
+	$key = apply_filters( 'stag_fragment_cache_prefix', 'stag_fragment_cache_' ) . $key;
+	$output = get_transient($key);
+	if ( empty($output) ) {
+		ob_start();
+		call_user_func($function);
+		$output = ob_get_clean();
+		set_transient( $key, $output, $ttl );
+	}
+	echo $output;
+}
